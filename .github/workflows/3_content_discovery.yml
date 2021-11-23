@@ -23,10 +23,10 @@ jobs:
           OCI_PASSWORD: ${{ secrets.BB_TOKEN }}
           OCI_TEST_CONTENT_DISCOVERY: 1
           OCI_HIDE_SKIPPED_WORKFLOWS: 1
-      - run: mkdir -p .out/ && mv {report.html,junit.xml} .out/
+      - uses: actions/upload-artifact@v2
         if: always()
-      - name: Upload test results zip as build artifact
-        uses: actions/upload-artifact@v1
         with:
-          name: oci-test-results-${{ github.sha }}
-          path: .out/
+          name: oci-test-results-3-${{ github.sha }}
+          path: |
+            report.html
+            junit.xml
