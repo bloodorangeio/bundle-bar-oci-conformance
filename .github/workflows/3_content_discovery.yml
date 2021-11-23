@@ -1,0 +1,32 @@
+name: content-discovery
+on:
+  push:
+    branches:
+      - main
+  repository_dispatch:
+    types:
+      - manual-trigger
+      - manual-trigger-3
+  schedule:
+    - cron: '10 6 * * *'
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Run OCI Distribution Spec conformance tests
+        uses: opencontainers/distribution-spec@main
+        env:
+          OCI_ROOT_URL: https://bundle.bar
+          OCI_NAMESPACE: u/${{ secrets.BB_USER }}/oci-conformance-3/primary
+          OCI_CROSSMOUNT_NAMESPACE: u/${{ secrets.BB_USER }}/oci-conformance-3/secondary
+          OCI_USERNAME: ${{ secrets.BB_USER }}
+          OCI_PASSWORD: ${{ secrets.BB_TOKEN }}
+          OCI_TEST_CONTENT_DISCOVERY: 1
+          OCI_HIDE_SKIPPED_WORKFLOWS: 1
+      - run: mkdir -p .out/ && mv {report.html,junit.xml} .out/
+        if: always()
+      - name: Upload test results zip as build artifact
+        uses: actions/upload-artifact@v1
+        with:
+          name: oci-test-results-${{ github.sha }}
+          path: .out/
